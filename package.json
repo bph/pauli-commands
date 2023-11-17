@@ -1,4 +1,9 @@
 {
+  "name": "pauli-commands",
+  "scripts": {
+  "start": "wp-scripts start --webpack-src-dir=resources --output-path=build",
+  "build": "wp-scripts build --webpack-src-dir=resources --output-path=build"
+  },
   "dependencies": {
     "@wordpress/icons": "^9.37.0",
     "@wordpress/scripts": "^26.17.0"
