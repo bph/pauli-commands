@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@wordpress/icons": "^9.37.0",
+    "@wordpress/scripts": "^26.17.0"
+  }
+}
