@@ -1,13 +1,17 @@
-import { store }    from '@wordpress/commands';
-import { dispatch } from '@wordpress/data';
+import { store, useCommand }    from '@wordpress/commands';
+import { dispatch, useDispatch, useSelect  } from '@wordpress/data';
 import { __ }       from '@wordpress/i18n';
-import { settings, comment, button } from '@wordpress/icons';
+import { settings, search, comment, button } from '@wordpress/icons';
+import { registerPlugin } from '@wordpress/plugins';
 
 /*
     For now we have three commands in this plugin: 
     - open Gutenberg Experiments admin page
     - Toggle Discussion panel in post editor
     - Toggle Button Labels in post and site editor
+	- Adding snackbar notification to second example
+	Tutorial and code examples from Dev Blog: 
+	https://developer.wordpress.org/news/2023/11/getting-started-with-the-command-palette-api/
 */
 
 dispatch( store ).registerCommand( {
@@ -60,5 +64,47 @@ dispatch( store ).registerCommand( {
 		}
 
 		close();
+	}
+} );
+
+
+registerPlugin( 'pauli-command-palette', {
+	render: () => {
+		// Determine if the discussion panel is enabled.
+		const discussionPanelEnabled = useSelect( ( select ) => {
+			return select( 'core/edit-post' ).isEditorPanelEnabled( 
+				'discussion-panel' 
+			);
+		}, [] );
+
+		// Get functions for toggling panels and creating snackbars.
+		const { toggleEditorPanelEnabled } = useDispatch( 'core/edit-post' );
+		const { createInfoNotice }         = useDispatch( 'core/notices'   );
+
+		// Register command to toggle discussion panel.
+		useCommand( {
+			name:  'pauli/discussion-show-hide',
+			label: discussionPanelEnabled
+			       ? __( 'Hide discussion panel', 'pauli' ) 
+			       : __( 'Show discussion panel', 'pauli' ),
+			icon:  comment,
+			callback: ( { close } ) => {
+				// Toggle the discussion panel.
+				toggleEditorPanelEnabled( 'discussion-panel' );
+				
+				// Add a snackbar notice.
+				createInfoNotice(
+					discussionPanelEnabled
+					? __( 'Discussion panel hidden.', 'pauli' )
+					: __( 'Discussion panel displayed.', 'pauli' ),
+					{
+						id:   'dev-blog/toggle-discussion/notice',
+						type: 'snackbar'
+					}
+				);
+	
+				close();
+			}
+		} );
 	}
 } );

@@ -134,6 +134,16 @@ module.exports = window["wp"]["i18n"];
 
 /***/ }),
 
+/***/ "@wordpress/plugins":
+/*!*********************************!*\
+  !*** external ["wp","plugins"] ***!
+  \*********************************/
+/***/ ((module) => {
+
+module.exports = window["wp"]["plugins"];
+
+/***/ }),
+
 /***/ "@wordpress/primitives":
 /*!************************************!*\
   !*** external ["wp","primitives"] ***!
@@ -225,9 +235,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _wordpress_data__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_data__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
 /* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var _wordpress_icons__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @wordpress/icons */ "./node_modules/@wordpress/icons/build-module/library/settings.js");
-/* harmony import */ var _wordpress_icons__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @wordpress/icons */ "./node_modules/@wordpress/icons/build-module/library/comment.js");
-/* harmony import */ var _wordpress_icons__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @wordpress/icons */ "./node_modules/@wordpress/icons/build-module/library/button.js");
+/* harmony import */ var _wordpress_icons__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @wordpress/icons */ "./node_modules/@wordpress/icons/build-module/library/settings.js");
+/* harmony import */ var _wordpress_icons__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @wordpress/icons */ "./node_modules/@wordpress/icons/build-module/library/comment.js");
+/* harmony import */ var _wordpress_icons__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @wordpress/icons */ "./node_modules/@wordpress/icons/build-module/library/button.js");
+/* harmony import */ var _wordpress_plugins__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @wordpress/plugins */ "@wordpress/plugins");
+/* harmony import */ var _wordpress_plugins__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_wordpress_plugins__WEBPACK_IMPORTED_MODULE_3__);
+
 
 
 
@@ -238,12 +251,15 @@ __webpack_require__.r(__webpack_exports__);
     - open Gutenberg Experiments admin page
     - Toggle Discussion panel in post editor
     - Toggle Button Labels in post and site editor
+	- Adding snackbar notification to second example
+	Tutorial and code examples from Dev Blog: 
+	https://developer.wordpress.org/news/2023/11/getting-started-with-the-command-palette-api/
 */
 
 (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_1__.dispatch)(_wordpress_commands__WEBPACK_IMPORTED_MODULE_0__.store).registerCommand({
   name: 'pauli/gutenberg-experiments',
   label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)('Gutenberg Experiments', 'pauli'),
-  icon: _wordpress_icons__WEBPACK_IMPORTED_MODULE_3__["default"],
+  icon: _wordpress_icons__WEBPACK_IMPORTED_MODULE_4__["default"],
   context: 'site-editor',
   callback: ({
     close
@@ -257,7 +273,7 @@ if (undefined !== wp.editPost) {
   (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_1__.dispatch)(_wordpress_commands__WEBPACK_IMPORTED_MODULE_0__.store).registerCommand({
     name: 'pauli/discussion-panel',
     label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)('Toggle Discussion Panel', 'pauli'),
-    icon: _wordpress_icons__WEBPACK_IMPORTED_MODULE_4__["default"],
+    icon: _wordpress_icons__WEBPACK_IMPORTED_MODULE_5__["default"],
     callback: ({
       close
     }) => {
@@ -269,7 +285,7 @@ if (undefined !== wp.editPost) {
 (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_1__.dispatch)(_wordpress_commands__WEBPACK_IMPORTED_MODULE_0__.store).registerCommand({
   name: 'pauli/toggle-button-labels',
   label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)('Toggle Button Labels', 'pauli'),
-  icon: _wordpress_icons__WEBPACK_IMPORTED_MODULE_5__["default"],
+  icon: _wordpress_icons__WEBPACK_IMPORTED_MODULE_6__["default"],
   context: 'site-editor-edit',
   callback: ({
     close
@@ -284,6 +300,42 @@ if (undefined !== wp.editPost) {
       (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_1__.dispatch)('core/preferences').toggle('core/edit-post', 'showIconLabels');
     }
     close();
+  }
+});
+(0,_wordpress_plugins__WEBPACK_IMPORTED_MODULE_3__.registerPlugin)('pauli-command-palette', {
+  render: () => {
+    // Determine if the discussion panel is enabled.
+    const discussionPanelEnabled = (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_1__.useSelect)(select => {
+      return select('core/edit-post').isEditorPanelEnabled('discussion-panel');
+    }, []);
+
+    // Get functions for toggling panels and creating snackbars.
+    const {
+      toggleEditorPanelEnabled
+    } = (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_1__.useDispatch)('core/edit-post');
+    const {
+      createInfoNotice
+    } = (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_1__.useDispatch)('core/notices');
+
+    // Register command to toggle discussion panel.
+    (0,_wordpress_commands__WEBPACK_IMPORTED_MODULE_0__.useCommand)({
+      name: 'pauli/discussion-show-hide',
+      label: discussionPanelEnabled ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)('Hide discussion panel', 'pauli') : (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)('Show discussion panel', 'pauli'),
+      icon: _wordpress_icons__WEBPACK_IMPORTED_MODULE_5__["default"],
+      callback: ({
+        close
+      }) => {
+        // Toggle the discussion panel.
+        toggleEditorPanelEnabled('discussion-panel');
+
+        // Add a snackbar notice.
+        createInfoNotice(discussionPanelEnabled ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)('Discussion panel hidden.', 'pauli') : (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)('Discussion panel displayed.', 'pauli'), {
+          id: 'dev-blog/toggle-discussion/notice',
+          type: 'snackbar'
+        });
+        close();
+      }
+    });
   }
 });
 })();
