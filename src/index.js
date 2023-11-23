@@ -67,7 +67,7 @@ dispatch( store ).registerCommand( {
 	}
 } );
 
-
+if ( undefined !== wp.editPost ) {
 registerPlugin( 'pauli-command-palette', {
 	render: () => {
 		// Determine if the discussion panel is enabled.
@@ -108,3 +108,4 @@ registerPlugin( 'pauli-command-palette', {
 		} );
 	}
 } );
+}
